@@ -1,8 +1,10 @@
 <?php
 
+use App\Client\YandexClient;
 use App\Controller\DoctorController;
 use App\Controller\RecordController;
 use App\Controller\UserController;
+use App\Controller\WeatherController;
 use App\Entity\Doctor;
 use App\Entity\Record;
 use App\Entity\Role;
@@ -18,6 +20,7 @@ use Doctrine\ORM\Tools\Setup;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use UMA\DIC\Container;
+
 
 return [
     UserController::class => function (Container $container) {
@@ -67,6 +70,19 @@ return [
 
         return new RecordController($doctorRepository, $userRepository, $recordRepository);
     },
+    YandexClient::class => function(){
+        return new YandexClient();
+    },
+
+    WeatherController::class => function (Container $container) {
+
+        /** @var YandexClient $yandexClient */
+
+        $yandexClient = $container->get(YandexClient::class);
+
+        return new WeatherController($yandexClient);
+    },
+
     EntityManager::class => static function (Container $c): EntityManager {
 
         /** @var array $settings */

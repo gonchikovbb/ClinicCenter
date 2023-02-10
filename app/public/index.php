@@ -3,6 +3,7 @@
 use App\Controller\DoctorController;
 use App\Controller\RecordController;
 use App\Controller\UserController;
+use App\Controller\WeatherController;
 use App\Entity\Role;
 use App\Entity\User;
 use App\Repository\RoleRepository;
@@ -27,4 +28,7 @@ $app->put('/user', [UserController::class, "editUser"]);
 $app->post('/doctor', [DoctorController::class, "addDoctor"]);
 $app->get('/doctor', [DoctorController::class, "getDoctors"]);
 $app->post('/record', [RecordController::class, "recordToDoctor"]);
+$app->get('/weather', [WeatherController::class, "getWeather"]);
+$app->get('/weathers', [WeatherController::class, "getWeathers"]);
+
 $app->run();

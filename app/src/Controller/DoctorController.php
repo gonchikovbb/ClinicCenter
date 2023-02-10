@@ -18,7 +18,7 @@ class DoctorController
     private UserRepository $userRepository;
     private RoleRepository $roleRepository;
 
-    private  Connection $connection;
+    private Connection $connection;
 
     public function __construct(
         DoctorRepository $doctorRepository,
