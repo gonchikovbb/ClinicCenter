@@ -9,10 +9,12 @@ use App\Entity\Doctor;
 use App\Entity\Record;
 use App\Entity\Role;
 use App\Entity\User;
+use App\Entity\Weather;
 use App\Repository\DoctorRepository;
 use App\Repository\RecordRepository;
 use App\Repository\RoleRepository;
 use App\Repository\UserRepository;
+use App\Repository\WeatherRepository;
 use Doctrine\Common\Cache\Psr6\DoctrineProvider;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
@@ -75,12 +77,17 @@ return [
     },
 
     WeatherController::class => function (Container $container) {
+        /** @var EntityManager $em */
+        $em = $container->get(EntityManager::class);
+
+        /** @var WeatherRepository $weatherRepository */
+        $weatherRepository = $em->getRepository(Weather::class);
 
         /** @var YandexClient $yandexClient */
 
         $yandexClient = $container->get(YandexClient::class);
 
-        return new WeatherController($yandexClient);
+        return new WeatherController($yandexClient,$weatherRepository);
     },
 
     EntityManager::class => static function (Container $c): EntityManager {
