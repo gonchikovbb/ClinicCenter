@@ -1,11 +1,16 @@
 <?php
 namespace App\Controller;
+
 use App\Entity\Role;
 use App\Entity\User;
 use App\Repository\RoleRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
+use Exception;
+use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Message\AMQPMessage;
+use PHPMailer\PHPMailer\PHPMailer;
 use Ramsey\Uuid\Uuid;
 use Slim\Psr7\Request;
 use Slim\Psr7\Response;
@@ -40,7 +45,12 @@ final class UserController
     }
 
     //Регистрация
-    public function signUp(Request $request, Response $response, $args)
+
+
+    /**
+     * @throws \PHPMailer\PHPMailer\Exception
+     */
+    public function signUp(Request $request, Response $response)
     {
         $data = json_decode($request->getBody()->getContents(), true);
 
@@ -81,6 +91,25 @@ final class UserController
             $thirdName);
 
         $this->userRepository->save($user, true);
+
+        //Rabbitmq
+        $connection = new AMQPStreamConnection(
+            'rabbitmq',
+            '5672',
+            'myuser',
+            'mypassword'
+        );
+        $channel = $connection->channel();
+
+        $channel->queue_declare('hello',false, false,false,false);
+
+        $msg = new AMQPMessage('Hello World');
+        $channel->basic_publish($msg,'','hello');
+
+        echo "[x] Sent 'Hello World!'\n";
+
+        $channel->close();
+        $connection->close();
 
         $user = $user->toArray();
 

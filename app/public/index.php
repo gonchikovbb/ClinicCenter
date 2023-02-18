@@ -12,6 +12,7 @@ use Doctrine\ORM\EntityManager;
 use Slim\Factory\AppFactory;
 use UMA\DIC\Container;
 
+
 require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../config/dependencies.php';
 

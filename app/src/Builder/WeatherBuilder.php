@@ -3,15 +3,14 @@
 namespace App\Builder;
 
 use App\Entity\Weather;
+use DateTime;
 use Psr\Http\Message\ResponseInterface;
 
 class WeatherBuilder
 {
-    public static function createByYandexResponse(ResponseInterface $yandexResponse):Weather
+    public static function createByYandexResponse(array $yandexResponse):Weather
     {
-        $yandexResponse = json_decode($yandexResponse->getBody()->getContents(),true);
-
-        $date = $yandexResponse['forecasts']['0']['date'];
+        $date_time = new DateTime('now');
         $week = $yandexResponse['forecasts']['0']['week'];
         $city = $yandexResponse['geo_object']['locality']['name'];
         $temp = $yandexResponse['fact']['temp'];
@@ -40,6 +39,6 @@ class WeatherBuilder
                 $week = 'Воскресенье';
                 break;
         }
-        return new Weather($date,$week,$city,$temp,$lat,$lon);
+        return new Weather($date_time,$week,$city,$temp,$lat,$lon);
     }
 }

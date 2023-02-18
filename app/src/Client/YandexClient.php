@@ -2,6 +2,7 @@
 
 namespace App\Client;
 
+use App\Exception\YandexClientException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Message\ResponseInterface;
@@ -22,7 +23,7 @@ class YandexClient
     /**
      * @throws GuzzleException
      */
-    public function checkWeather(string $lat, string $lon): ResponseInterface
+    public function checkWeather(float $lat, float $lon): array
     {
         $queryRequest= [
             'query' => [
@@ -33,6 +34,10 @@ class YandexClient
                 'extra' => 'false',
             ]
         ];
-        return $this->client->request('GET', '', $queryRequest);
+        $response = $this->client->request('GET', '', $queryRequest);
+        if ($response->getStatusCode() !== 200) {
+            throw new YandexClientException('Получен код, не 200. Response body: '. $response->getBody()->getContents());
+        }
+        return json_decode($response->getBody()->getContents(),true);
     }
 }
