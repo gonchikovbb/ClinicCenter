@@ -4,7 +4,6 @@ namespace App\Builder;
 
 use App\Entity\Weather;
 use DateTime;
-use Psr\Http\Message\ResponseInterface;
 
 class WeatherBuilder
 {

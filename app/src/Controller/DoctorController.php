@@ -1,6 +1,5 @@
 <?php
 namespace App\Controller;
-use App\Entity\Role;
 use App\Entity\Doctor;
 use App\Entity\User;
 use App\Repository\DoctorRepository;
@@ -8,7 +7,6 @@ use App\Repository\RoleRepository;
 use App\Repository\UserRepository;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
-use Doctrine\ORM\EntityManager;
 use Slim\Psr7\Request;
 use Slim\Psr7\Response;
 
@@ -17,7 +15,6 @@ class DoctorController
     private DoctorRepository $doctorRepository;
     private UserRepository $userRepository;
     private RoleRepository $roleRepository;
-
     private Connection $connection;
 
     public function __construct(
@@ -63,7 +60,9 @@ class DoctorController
         }
 
         $data = json_decode($request->getBody()->getContents(), true);
+
         $errors = $this->validateAddDoctor($data);
+
         if (!empty($errors)) {
             $errors = json_encode($errors);
             $response->getBody()->write($errors);
@@ -169,7 +168,9 @@ class DoctorController
     public function getDoctors(Request $request, Response $response, $args)
     {
         $data = json_decode($request->getBody()->getContents(), true);
+
         $errors = $this->validateGetDoctor($data);
+
         if (!empty($errors)) {
             $errors = json_encode($errors);
             $response->getBody()->write($errors);
@@ -185,14 +186,16 @@ class DoctorController
         }
 
         $arrDoctors = [];
+
         foreach ($doctors as $doctor) {
             $doctor = $doctor->toArray();
             $arrDoctors[] = $doctor; //add element
         }
         $response->getBody()->write(json_encode($arrDoctors));
-        return $response;
 
+        return $response;
     }
+
     private function validateGetDoctor(array $data):array
     {
         $errors = [];

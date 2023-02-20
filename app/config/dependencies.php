@@ -15,15 +15,16 @@ use App\Repository\RecordRepository;
 use App\Repository\RoleRepository;
 use App\Repository\UserRepository;
 use App\Repository\WeatherRepository;
+use App\Service\MailerService;
+use App\Service\QueueService;
 use App\Service\WeatherService;
 use Doctrine\Common\Cache\Psr6\DoctrineProvider;
-use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Setup;
+use PHPMailer\PHPMailer\PHPMailer;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use UMA\DIC\Container;
-
 
 return [
     UserController::class => function (Container $container) {
@@ -37,8 +38,41 @@ return [
         /** @var RoleRepository $roleRepository */
         $roleRepository = $em->getRepository(Role::class);
 
-        return new UserController($userRepository, $roleRepository);
+        $queueService = $container->get(QueueService::class);
+
+        return new UserController($userRepository, $roleRepository, $queueService);
     },
+
+    QueueService::class => function () {
+        return new QueueService();
+    },
+
+    PHPMailer::class => function (Container $c) {
+
+        /** @var array $settings */
+        $settings = $c->get('settings');
+
+        $mail = new PhpMailer();
+        $mail->SMTPDebug = $settings['mailer']['SMTPDebug'];
+        $mail->SMTPAuth = $settings['mailer']['SMTPAuth'];
+        $mail->SMTPSecure = $settings['mailer']['SMTPSecure'];
+        $mail->Port = $settings['mailer']['Port'];
+        $mail->CharSet = $settings['mailer']['CharSet'];
+        $mail->Host = $settings['mailer']['Host'];
+        $mail->Username = $settings['mailer']['Username'];
+        $mail->Password = $settings['mailer']['Password'];
+        $mail->isSMTP();
+        $mail->setFrom($mail->Username);
+        $mail->isHTML(true);
+
+        return $mail;
+    },
+
+    MailerService::class => function (Container $container) {
+        $phpMailer = $container->get(PHPMailer::class);
+        return new MailerService($phpMailer);
+    },
+
     DoctorController::class => function (Container $container) {
 
         /** @var EntityManager $em */
@@ -57,6 +91,7 @@ return [
 
         return new DoctorController($doctorRepository, $userRepository, $roleRepository, $connection);
     },
+
     RecordController::class => function (Container $container) {
 
         /** @var EntityManager $em */
@@ -73,6 +108,7 @@ return [
 
         return new RecordController($doctorRepository, $userRepository, $recordRepository);
     },
+
     YandexClient::class => function(){
         return new YandexClient();
     },

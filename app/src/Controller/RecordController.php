@@ -47,6 +47,7 @@ class RecordController
         $data = json_decode($request->getBody()->getContents(), true);
 
         $errors = $this->validateRecordToDoctor($data);
+
         if (!empty($errors)) {
             $errors = json_encode($errors);
             $response->getBody()->write($errors);
@@ -71,9 +72,12 @@ class RecordController
         $this->recordRepository->save($record, true);
 
         $record = $record->toArray();
+
         $response->getBody()->write(json_encode($record));
+
         return $response;
     }
+
     private function validateRecordToDoctor(array $data):array
     {
         $errors = [];

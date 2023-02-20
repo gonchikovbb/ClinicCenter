@@ -42,13 +42,14 @@ class WeatherController
     public function getWeathers(Request $request, Response $response, $args): Response
     {
         $data = json_decode($request->getBody()->getContents(), true);
+
         //Валидация
         $weathers = [];
 
         $this->connection->beginTransaction();
+
         try {
             foreach ($data as $coordinate) {
-
                 $lat = $coordinate['lat'];
                 $lon = $coordinate['lon'];
 

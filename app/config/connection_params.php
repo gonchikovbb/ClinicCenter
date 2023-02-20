@@ -1,4 +1,5 @@
 <?php
+
 $connection_params = array(
     'host' => 'localhost',
     'port' => '5672',

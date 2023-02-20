@@ -5,56 +5,31 @@ use App\Entity\Role;
 use App\Entity\User;
 use App\Repository\RoleRepository;
 use App\Repository\UserRepository;
-use Doctrine\ORM\Exception\ORMException;
-use Doctrine\ORM\OptimisticLockException;
-use Exception;
-use PhpAmqpLib\Connection\AMQPStreamConnection;
-use PhpAmqpLib\Message\AMQPMessage;
-use PHPMailer\PHPMailer\PHPMailer;
+use App\Service\QueueService;
 use Ramsey\Uuid\Uuid;
 use Slim\Psr7\Request;
 use Slim\Psr7\Response;
-
-//class UserController
-//{
-//    public function signUp(Request $request, Response $response, $args)
-//    {
-//        $dbh = new PDO("pgsql:host=db;port=5432;dbname=postgres;", 'user', 'pass');
-//        //insert добавляю в бд
-//        $data = json_decode($request->getBody()->getContents(),true);
-//        $sql = "INSERT INTO users (first_name, second_name, gender, third_name, email, phone, role_id) VALUES (:first_name, :second_name, :gender, :third_name, :email, :phone, :role_id)";
-//        $dbh->prepare($sql)->execute($data);
-//
-//        $stmt = $dbh->query("SELECT * FROM  \"users\" WHERE \"email\"='{$data['email']}'");
-//        //print_r($stmt->fetch());
-//        $result = json_encode($stmt->fetch());
-//        $response->getBody()->write($result);
-//        return $response;
-//    }
-//}
 
 final class UserController
 {
     private UserRepository $userRepository;
     private RoleRepository $roleRepository;
+    private QueueService $queueService;
 
-    public function __construct(UserRepository $userRepository, RoleRepository $roleRepository)
+    public function __construct(UserRepository $userRepository, RoleRepository $roleRepository, QueueService $queueService)
     {
         $this->userRepository = $userRepository;
         $this->roleRepository = $roleRepository;
+        $this->queueService = $queueService;
     }
 
     //Регистрация
-
-
-    /**
-     * @throws \PHPMailer\PHPMailer\Exception
-     */
     public function signUp(Request $request, Response $response)
     {
         $data = json_decode($request->getBody()->getContents(), true);
 
         $errors = $this->validateSignUp($data);
+
         if (!empty($errors)) {
             $errors = json_encode($errors);
             $response->getBody()->write($errors);
@@ -93,23 +68,7 @@ final class UserController
         $this->userRepository->save($user, true);
 
         //Rabbitmq
-        $connection = new AMQPStreamConnection(
-            'rabbitmq',
-            '5672',
-            'myuser',
-            'mypassword'
-        );
-        $channel = $connection->channel();
-
-        $channel->queue_declare('hello',false, false,false,false);
-
-        $msg = new AMQPMessage('Hello World');
-        $channel->basic_publish($msg,'','hello');
-
-        echo "[x] Sent 'Hello World!'\n";
-
-        $channel->close();
-        $connection->close();
+        $this->queueService->produce(['email' => $email], 'email');
 
         $user = $user->toArray();
 
@@ -121,6 +80,7 @@ final class UserController
     private function validateSignUp(array $data):array
     {
         $errors = [];
+
         if (empty($data['first_name'])) {
             $errors["first_name"] = "Имя не должно быть пустым";
         } elseif (mb_strlen($data['first_name']) > 30) {
@@ -158,6 +118,7 @@ final class UserController
         }
         return $errors;
     }
+
     //Авторизация
     public function signIn(Request $request, Response $response, $args)
     {
@@ -170,6 +131,7 @@ final class UserController
         }
 
         $email = $data['email'];
+
         $password = $data['password'];
 
         $user = $this->userRepository->findOneBy(['email'=>$email]);
@@ -184,16 +146,22 @@ final class UserController
             $response->getBody()->write(json_encode($errors));
             return $response;
         }
+
         $token = Uuid::uuid1()->toString(); //статический метод, сгенерирует уникальное значение, нужно ее сохранить в юзерс и выдать в респонс
-        //token  headers <authorization>
+
         $user->setToken($token);
+
         $response = $response->withHeader("Authorization", $token);
+
         $this->userRepository->save($user, true);
 
         $user = $user->toArray();
+
         $response->getBody()->write(json_encode($user));
+
         return $response;
     }
+
     private function validateSignIn(array $data):array
     {
         $errors = [];
@@ -209,6 +177,7 @@ final class UserController
         }
         return $errors;
     }
+
     private function validateEmail(array $data):?string
     {
         if (empty($data['email'])) {
@@ -219,6 +188,7 @@ final class UserController
         }
         return null;
     }
+
     private function validatePass(array $data):?string
     {
         if (empty($data['password'])) {
@@ -242,7 +212,9 @@ final class UserController
         }
 
         $token = $request->getHeader("Authorization");
+
         $token = reset($token); //достаю послежний элемент из массива
+
         //если нет токена, то сообщение - авторизуйтесь, вернуть респонс сразу "не указали токен"
         if (empty($token)) {
             $errors = "Не указали токен";
@@ -357,5 +329,4 @@ final class UserController
         }
         return $errors;
     }
-
 }

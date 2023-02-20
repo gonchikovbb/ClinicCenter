@@ -1,7 +1,5 @@
 <?php
 
-// settings.php
-
 define('APP_ROOT', __DIR__);
 
 return [
@@ -48,6 +46,16 @@ return [
                 'password' => 'pass',
                 'charset' => 'utf-8'
             ]
+        ],
+        'mailer' => [
+            'SMTPDebug' => 2,
+            'SMTPAuth' => true,
+            'SMTPSecure' => 'ssl',
+            'Port' => 465,
+            'CharSet' => 'UTF-8',
+            'Host' => 'smtp.mail.ru',
+            'Username' => 'gonchikov_bb@mail.ru',
+            'Password' => '5xxbabxMEX3RQTecyBfM'
         ]
     ]
 ];

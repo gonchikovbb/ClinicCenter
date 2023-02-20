@@ -1,4 +1,5 @@
 <?php
+
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Console\ConsoleRunner;
 use UMA\DIC\Container;

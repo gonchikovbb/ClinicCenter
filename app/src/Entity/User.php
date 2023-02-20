@@ -22,7 +22,6 @@ class User
     private string $secondName;
     #[Column(type: 'string', nullable: false)]
     private string $gender;
-
     #[Column(type: 'string', unique: true, nullable: false)]
     private string $email;
     #[Column(type: 'string', nullable: false)]
@@ -110,30 +109,37 @@ class User
     {
         $this->firstName = $firstName;
     }
+
     public function setSecondName(string $secondName)
     {
         $this->secondName = $secondName;
     }
+
     public function setThirdName(string $thirdName)
     {
         $this->thirdName = $thirdName;
     }
+
     public function setEmail(string $email)
     {
         $this->email = $email;
     }
+
     public function setPassword(string $password)
     {
         $this->password = $password;
     }
+
     public function setPhone(string $phone)
     {
         $this->phone = $phone;
     }
+
     public function setGender(string $gender)
     {
         $this->gender = $gender;
     }
+
     public function setToken(string $token)
     {
          $this->token = $token;

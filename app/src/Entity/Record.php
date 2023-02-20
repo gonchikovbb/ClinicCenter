@@ -42,30 +42,37 @@ class Record
         $this->date = $date;
         $this->time = $time;
     }
+
     public function getUser(): User
     {
         return $this->user;
     }
+
     public function getDoctor(): Doctor
     {
         return $this->doctor;
     }
+
     public function getDate(): string
     {
         return $this->date;
     }
+
     public function getTime(): string
     {
         return $this->time;
     }
+
     public function setDate(string $date)
     {
         $this->date = $date;
     }
+
     public function setTime(string $time)
     {
         $this->time = $time;
     }
+
     public function toArray(): array
     {
         return [
