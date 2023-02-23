@@ -8,7 +8,6 @@ use App\View\RegistrationView;
 use Slim\Factory\AppFactory;
 
 require __DIR__ . '/../vendor/autoload.php';
-require __DIR__ . '/../config/dependencies.php';
 
 $container = require __DIR__ . '/../config/bootstrap.php';
 
