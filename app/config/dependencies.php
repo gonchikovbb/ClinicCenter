@@ -18,10 +18,12 @@ use App\Repository\WeatherRepository;
 use App\Service\MailerService;
 use App\Service\QueueService;
 use App\Service\WeatherService;
+use App\View\RegistrationView;
 use Doctrine\Common\Cache\Psr6\DoctrineProvider;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Setup;
 use PHPMailer\PHPMailer\PHPMailer;
+use Slim\Views\PhpRenderer;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use UMA\DIC\Container;
@@ -152,5 +154,14 @@ return [
             $cache
         );
         return EntityManager::create($settings['doctrine']['connection'], $config);
+    },
+
+    PhpRenderer::class => function () {
+        return new PhpRenderer("../src/View/templates");
+    },
+
+    RegistrationView::class => function (Container $container) {
+        $renderer = $container->get(PhpRenderer::class);
+    return new RegistrationView($renderer);
     }
 ];

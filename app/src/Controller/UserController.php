@@ -26,7 +26,7 @@ final class UserController
     //Регистрация
     public function signUp(Request $request, Response $response)
     {
-        $data = json_decode($request->getBody()->getContents(), true);
+        $data = $request->getParsedBody();
 
         $errors = $this->validateSignUp($data);
 

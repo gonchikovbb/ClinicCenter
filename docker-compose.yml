@@ -32,7 +32,6 @@ services:
       - ./.docker/conf/postgres/:/docker-entrypoint-initdb.d/
 
   rabbitmq:
-    container_name: "rabbitmq"
     image: rabbitmq:3.8-management-alpine
     environment:
        - RABBITMQ_DEFAULT_USER=myuser

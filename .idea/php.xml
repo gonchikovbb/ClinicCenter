@@ -62,6 +62,7 @@
       <path value="$PROJECT_DIR$/app/vendor/doctrine/deprecations" />
       <path value="$PROJECT_DIR$/app/vendor/doctrine/lexer" />
       <path value="$PROJECT_DIR$/app/vendor/paragonie/random_compat" />
+      <path value="$PROJECT_DIR$/app/vendor/slim/php-view" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.0">
